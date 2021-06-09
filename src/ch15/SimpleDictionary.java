@@ -9,80 +9,80 @@ import java.util.*;
 
 public class SimpleDictionary extends JPanel implements ActionListener{
    /*
-      ´Ü¾î ÀÔ·Â ¹ŞÀ» ¼ö ÀÖ´Â JTextField
-      °Ë»ö ¹öÆ°
-      Ãß°¡ ¹öÆ°
-      ´Ü¾îÀå ±¸ÇöÀ» À§ÇÑ ÀÚ·á±¸Á¶·Î Map °´Ã¼
+      ë‹¨ì–´ ì…ë ¥ ë°›ì„ ìˆ˜ ìˆëŠ” JTextField
+      ê²€ìƒ‰ ë²„íŠ¼
+      ì¶”ê°€ ë²„íŠ¼
+      ë‹¨ì–´ì¥ êµ¬í˜„ì„ ìœ„í•œ ìë£Œêµ¬ì¡°ë¡œ Map ê°ì²´
    */
    private JTextField inputField = new JTextField(30);
-   private JButton searchBtn = new JButton("°Ë»ö");
-   private JButton addBtn = new JButton("Ãß°¡");
+   private JButton searchBtn = new JButton("ê²€ìƒ‰");
+   private JButton addBtn = new JButton("ì¶”ê°€");
    
-   // Map °´Ã¼¸¦ ´Ü¾îÀå ±¸Çö »ç¿ëÇÒ²¨´Ù.
-   // <key, value> ½ÖÀ¸·Î ÀúÀå. key´Â ÇÑ±Û´Ü¾î, value´Â ´ëÀÀµÇ´Â ¿µ¾î´Ü¾î.
+   // Map ê°ì²´ë¥¼ ë‹¨ì–´ì¥ êµ¬í˜„ ì‚¬ìš©í• êº¼ë‹¤.
+   // <key, value> ìŒìœ¼ë¡œ ì €ì¥. keyëŠ” í•œê¸€ë‹¨ì–´, valueëŠ” ëŒ€ì‘ë˜ëŠ” ì˜ì–´ë‹¨ì–´.
    private Map<String, String> words = new HashMap<>();
    private static final String DIC_FILE_NAME = "dict.props";
    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-   private static final String DB_SERVER_URL = "jdbc:mysql://localhost:3306/oop";
-   private static final String DB_USER = "root";
-   private static final String DB_USER_PW = "cjseong98";
+   private static final String DB_SERVER_URL = "";
+   private static final String DB_USER = "";
+   private static final String DB_USER_PW = "";
    
    public SimpleDictionary() {
-      // PanelÀÇ ±âº» ·¹ÀÌ¾Æ¿ôÀº : FlowLayout
+      // Panelì˜ ê¸°ë³¸ ë ˆì´ì•„ì›ƒì€ : FlowLayout
       this.add(inputField);
       this.add(searchBtn);
       this.add(addBtn);
       
-      // searchBtn, addBtn¿¡ Å¬¸¯ ÀÌº¥Æ®°¡ ¹ß»ıÇßÀ» ¶§ Ã³¸®ÇÒ ¸®½º³Ê¸¦ ÁöÁ¤ÇÏÀÚ!
+      // searchBtn, addBtnì— í´ë¦­ ì´ë²¤íŠ¸ê°€ ë°œìƒí–ˆì„ ë•Œ ì²˜ë¦¬í•  ë¦¬ìŠ¤ë„ˆë¥¼ ì§€ì •í•˜ì!
       searchBtn.addActionListener(this);
       addBtn.addActionListener(this);
       
       this.setPreferredSize(new Dimension(600, 50));
    
-      // ÆÄÀÏ¿¡ key=value ÇüÅÂ·Î ÀúÀåµÈ ¿£Æ®¸®µéÀ» ÀĞ¾î¼­, dict¸¦ ±¸¼ºÇÏÀÚ.
-      // DB¿¡¼­ ·¹ÄÚµå¸¦ ÀĞ°í, ±× ·¹ÄÚµå¸¦ ÀÌ¿ëÇØ dict ¸ÊÀ» ±¸¼ºÇÏÀÚ.
+      // íŒŒì¼ì— key=value í˜•íƒœë¡œ ì €ì¥ëœ ì—”íŠ¸ë¦¬ë“¤ì„ ì½ì–´ì„œ, dictë¥¼ êµ¬ì„±í•˜ì.
+      // DBì—ì„œ ë ˆì½”ë“œë¥¼ ì½ê³ , ê·¸ ë ˆì½”ë“œë¥¼ ì´ìš©í•´ dict ë§µì„ êµ¬ì„±í•˜ì.
 //      buildDictionaryFromFile();
       buildDictionaryFromDB();
    }
    
    private void buildDictionaryFromDB() {
       /*
-         1. Database ¿¬°á
-            a. JDBC Driver¸¦ ·Îµù Class.forName("com.mysql.jdbc.Driver");
+         1. Database ì—°ê²°
+            a. JDBC Driverë¥¼ ë¡œë”© Class.forName("com.mysql.jdbc.Driver");
             b. Connection con = DriverManager.getConnection();
-              ¸Ş¼­µå¸¦ È£ÃâÇØ ¿¬°áÀ» establish
-              ÀÌ ¶§ ¿¬°á Á¤º¸¸¦ getConnection() ¸Ş¼­µå¿¡ Àü´ŞÇØÁà¾ß ÇÔ.
-              ¿¬°áÁ¤º¸: DB ServerÀÇ URL
-               => (ip ÁÖ¼Ò, port¹øÈ£)
-                db »ç¿ëÀÚÀÇ ¾ÆÀÌµğ¿Í ¾ÏÈ£
-         2. Connection °´Ã¼¸¦ ÅëÇØ SQL¹® ½ÇÇàÀ» ¼­¹ö¿¡ ¿äÃ»ÇÏ°í ±×°á°ú¸¦ ¹Ş¾Æ¼­ Ã³¸®ÇÑ´Ù.
-            Å©°Ô µÎ °¡Áö ¹æº¡ÀÌ ÀÖ´Ù.
-            Ã¹ Â°´Â con.createStatement() ¸Ş¼Òµå È£ÃâÀ» ÅëÇØ¼­
-            ¹İÈ¯µÇ´Â Statement °´Ã¼¸¦ ÀÌ¿ëÇÏ´Â ¹æ¹ı (Á¤Àû SQL ¹®)
-               Á¤Àû SQL¹®: ÇÁ·Î±×·¡¹Ö ½ÃÁ¡¿¡ ½ÇÇàÇÒ SQL¹® °áÁ¤µÇ°í °íÁ¤µÈ °æ¿ì.
-            µÎ ¹øÂ°´Â con.preparedStatement() ¸Ş¼­µå È£ÃâÀ» ÅëÇØ¼­
-            ¹İÈ¯µÇ´Â PreparedStatement °´Ã¼¸¦ ÀÌ¿ëÇÏ´Â ¹æ¹ı (µ¿Àû SQL ¹®)
-               µ¿Àû SQL¹®: ÇÁ·Î±×·¡¹Ö ½ÃÁ¡¿¡ ½ÇÇàÇÒ SQL¹® °áÁ¤µÇÁö ¾Ê°í º¯°æµÇ´Â SQL¹®
+              ë©”ì„œë“œë¥¼ í˜¸ì¶œí•´ ì—°ê²°ì„ establish
+              ì´ ë•Œ ì—°ê²° ì •ë³´ë¥¼ getConnection() ë©”ì„œë“œì— ì „ë‹¬í•´ì¤˜ì•¼ í•¨.
+              ì—°ê²°ì •ë³´: DB Serverì˜ URL
+               => (ip ì£¼ì†Œ, portë²ˆí˜¸)
+                db ì‚¬ìš©ìì˜ ì•„ì´ë””ì™€ ì•”í˜¸
+         2. Connection ê°ì²´ë¥¼ í†µí•´ SQLë¬¸ ì‹¤í–‰ì„ ì„œë²„ì— ìš”ì²­í•˜ê³  ê·¸ê²°ê³¼ë¥¼ ë°›ì•„ì„œ ì²˜ë¦¬í•œë‹¤.
+            í¬ê²Œ ë‘ ê°€ì§€ ë°©ë²™ì´ ìˆë‹¤.
+            ì²« ì§¸ëŠ” con.createStatement() ë©”ì†Œë“œ í˜¸ì¶œì„ í†µí•´ì„œ
+            ë°˜í™˜ë˜ëŠ” Statement ê°ì²´ë¥¼ ì´ìš©í•˜ëŠ” ë°©ë²• (ì •ì  SQL ë¬¸)
+               ì •ì  SQLë¬¸: í”„ë¡œê·¸ë˜ë° ì‹œì ì— ì‹¤í–‰í•  SQLë¬¸ ê²°ì •ë˜ê³  ê³ ì •ëœ ê²½ìš°.
+            ë‘ ë²ˆì§¸ëŠ” con.preparedStatement() ë©”ì„œë“œ í˜¸ì¶œì„ í†µí•´ì„œ
+            ë°˜í™˜ë˜ëŠ” PreparedStatement ê°ì²´ë¥¼ ì´ìš©í•˜ëŠ” ë°©ë²• (ë™ì  SQL ë¬¸)
+               ë™ì  SQLë¬¸: í”„ë¡œê·¸ë˜ë° ì‹œì ì— ì‹¤í–‰í•  SQLë¬¸ ê²°ì •ë˜ì§€ ì•Šê³  ë³€ê²½ë˜ëŠ” SQLë¬¸
                select * from dict where han = ?
-            ÀÌ ¿¹¿¡¼­´Â PreparedStatement °´Ã¼¸¦ ÀÌ¿ëÇÑ´Ù.
+            ì´ ì˜ˆì—ì„œëŠ” PreparedStatement ê°ì²´ë¥¼ ì´ìš©í•œë‹¤.
                String sql = "select * from dict";
                PreparedStatement pstmt = con.preparedStatement(sql);
-               ½ÇÇà ÁØºñ°¡ µÈ PreparedStatement¸¦ ½ÇÇà½ÃÅ°´Â ¹æ¹ıÀº Å©°Ô 2°¡Áö
-               Ã¹ ¹øÂ°: ½ÇÇàÇÒ SQL ¹®ÀÌ insert, delete, ¶Ç´Â update ¹®ÀÎ °æ¿ì
+               ì‹¤í–‰ ì¤€ë¹„ê°€ ëœ PreparedStatementë¥¼ ì‹¤í–‰ì‹œí‚¤ëŠ” ë°©ë²•ì€ í¬ê²Œ 2ê°€ì§€
+               ì²« ë²ˆì§¸: ì‹¤í–‰í•  SQL ë¬¸ì´ insert, delete, ë˜ëŠ” update ë¬¸ì¸ ê²½ìš°
                insert into ...
                delete from dict ...
                update set eng = ... from ...
                
                pstmt.executeUpdate();
-               µÎ ¹øÂ°: ½ÇÇàÇÒ SQL ¹®ÀÌ select ¹®ÀÎ °æ¿ì.
+               ë‘ ë²ˆì§¸: ì‹¤í–‰í•  SQL ë¬¸ì´ select ë¬¸ì¸ ê²½ìš°.
                select ...
                
                ResultSet rs = pstmt.executeQuery();
-         3. DB Server¿ÍÀÇ ¿¬°áÀ» ÇØÁ¦(close)ÇÑ´Ù.
+         3. DB Serverì™€ì˜ ì—°ê²°ì„ í•´ì œ(close)í•œë‹¤.
             con.close();
       */
-      // MySQL JDBC µå¶óÀÌ¹ö¸¦ ¸Ş¸ğ¸®¿¡ ÀûÀç
-      // µå¶óÀÌ¹ö Å¬·¡½º ÀÌ¸§Àº DBMS¸¶´Ù ´Ù¸£´Ù.
+      // MySQL JDBC ë“œë¼ì´ë²„ë¥¼ ë©”ëª¨ë¦¬ì— ì ì¬
+      // ë“œë¼ì´ë²„ í´ë˜ìŠ¤ ì´ë¦„ì€ DBMSë§ˆë‹¤ ë‹¤ë¥´ë‹¤.
       try {
          Class.forName(JDBC_DRIVER);
       } catch (Exception e) {
@@ -90,22 +90,22 @@ public class SimpleDictionary extends JPanel implements ActionListener{
          return;
       }
       
-      // DB ¼­¹ö¿¡ ¿¬°á
+      // DB ì„œë²„ì— ì—°ê²°
       try (Connection con = 
             DriverManager.getConnection(DB_SERVER_URL, DB_USER, DB_USER_PW)) 
       {
-         // SELECT ¹® ½ÇÇà
+         // SELECT ë¬¸ ì‹¤í–‰
          String sql = "select * from dict";
          PreparedStatement pstmt = con.prepareStatement(sql);
          ResultSet rs = pstmt.executeQuery();
          
          while(rs.next()) {
-            // ÇöÀç Æ÷ÀÎÅÍ°¡ °¡¸®Å°´Â Ä®·³ °ªÀ» »©¿À¸é µÊ.
-            // °¢ Ä®·³ÀÇ Å¸ÀÔ¿¡ µû¶ó¼­, È£ÃâÇÒ ¸Ş¼­µå°¡ ´Ş¶óÁø´Ù.
-            // ¿¹¸¦ µé¾î¼­ char, varchar Å¸ÀÔÀÇ Ä®·³Àº
-            // getString("Ä®·³ÀÌ¸§" ¶Ç´Â "Ä®·³ À§Ä¡");
-            // int Å¸ÀÔÀÇ Ä®·³Àº getInt(...);
-            // DateTime, Date Å¸ÀÔÀÇ Ä®·³ °ªÀº getDate();
+            // í˜„ì¬ í¬ì¸í„°ê°€ ê°€ë¦¬í‚¤ëŠ” ì¹¼ëŸ¼ ê°’ì„ ë¹¼ì˜¤ë©´ ë¨.
+            // ê° ì¹¼ëŸ¼ì˜ íƒ€ì…ì— ë”°ë¼ì„œ, í˜¸ì¶œí•  ë©”ì„œë“œê°€ ë‹¬ë¼ì§„ë‹¤.
+            // ì˜ˆë¥¼ ë“¤ì–´ì„œ char, varchar íƒ€ì…ì˜ ì¹¼ëŸ¼ì€
+            // getString("ì¹¼ëŸ¼ì´ë¦„" ë˜ëŠ” "ì¹¼ëŸ¼ ìœ„ì¹˜");
+            // int íƒ€ì…ì˜ ì¹¼ëŸ¼ì€ getInt(...);
+            // DateTime, Date íƒ€ì…ì˜ ì¹¼ëŸ¼ ê°’ì€ getDate();
             // rs.getString("han");
             String han = rs.getString(1);
             // rs.getString("eng");
@@ -119,13 +119,13 @@ public class SimpleDictionary extends JPanel implements ActionListener{
    }
    
    private void buildDictionaryFromFile() {
-      // Properties ÀÏÁ¾ÀÇ MapÀÎµ¥
-      // key, valueÀÇ Å¸ÀÔÀÌ °¢°¢ String, StringÀ¸·Î
-      // °íÁ¤µÈ ÀÏÁ¾ÀÇ MapÀÌ´Ù.
+      // Properties ì¼ì¢…ì˜ Mapì¸ë°
+      // key, valueì˜ íƒ€ì…ì´ ê°ê° String, Stringìœ¼ë¡œ
+      // ê³ ì •ëœ ì¼ì¢…ì˜ Mapì´ë‹¤.
       Properties props = new Properties();
       
-      // ÆÄÀÏ¿¡¼­ ÀĞ¾î¼­ props °´Ã¼ÀÇ <key, value>
-      // ½ÖÀ» ±¸¼ºÇÒ ¼ö ÀÖ´Ù.
+      // íŒŒì¼ì—ì„œ ì½ì–´ì„œ props ê°ì²´ì˜ <key, value>
+      // ìŒì„ êµ¬ì„±í•  ìˆ˜ ìˆë‹¤.
       try (FileReader fReader = new FileReader(DIC_FILE_NAME)) {
          props.load(fReader);
       } catch (Exception e) {
@@ -141,44 +141,44 @@ public class SimpleDictionary extends JPanel implements ActionListener{
    @Override
    public void actionPerformed(ActionEvent e) {
       String key = inputField.getText();
-      if (key.trim().length() == 0) return; // °ø¹é¸¸ ÀÔ·ÂµÈ °æ¿ì´Â ¹«½Ã.
+      if (key.trim().length() == 0) return; // ê³µë°±ë§Œ ì…ë ¥ëœ ê²½ìš°ëŠ” ë¬´ì‹œ.
       
       if (e.getSource() == searchBtn) {
          /*
-            ÀÔ·ÂµÈ ´Ü¾î¸¦ ÃßÃâ
-            ±× ´Ü¾î¸¦ key °ªÀ¸·Î °¡Áö´Â ´ëÀÀµÇ´Â ¸Ê ¿£Æ®¸®°¡ ÀÖ´ÂÁö °Ë»ç -> dict.get(´Ü¾î);
-            ±× ´Ü¾î ´ëÀÀµÇ´Â °ªÀÌ ÀÖÀ¸¸é JOptionPane.showMessageDialog() ¸Ş¼­µå¸¦ 
-            È£ÃâÇØ¼­ ±× ´ëÀÀµÇ´Â °ªÀ» º¸¿©ÁØ´Ù.
-            ¾øÀ¸¸é (nullÀÌ¸é) JOptionPane.showMessageDialog() ¸Ş¼­µå¸¦ È£ÃâÇØ¼­ 
-            ´Ü¾î¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù ¶ó°í Ãâ·ÂÇØÁØ´Ù.
-            inputField¸¦ ºó ¹®ÀÚ¿­·Î ¼³Á¤.
+            ì…ë ¥ëœ ë‹¨ì–´ë¥¼ ì¶”ì¶œ
+            ê·¸ ë‹¨ì–´ë¥¼ key ê°’ìœ¼ë¡œ ê°€ì§€ëŠ” ëŒ€ì‘ë˜ëŠ” ë§µ ì—”íŠ¸ë¦¬ê°€ ìˆëŠ”ì§€ ê²€ì‚¬ -> dict.get(ë‹¨ì–´);
+            ê·¸ ë‹¨ì–´ ëŒ€ì‘ë˜ëŠ” ê°’ì´ ìˆìœ¼ë©´ JOptionPane.showMessageDialog() ë©”ì„œë“œë¥¼ 
+            í˜¸ì¶œí•´ì„œ ê·¸ ëŒ€ì‘ë˜ëŠ” ê°’ì„ ë³´ì—¬ì¤€ë‹¤.
+            ì—†ìœ¼ë©´ (nullì´ë©´) JOptionPane.showMessageDialog() ë©”ì„œë“œë¥¼ í˜¸ì¶œí•´ì„œ 
+            ë‹¨ì–´ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤ ë¼ê³  ì¶œë ¥í•´ì¤€ë‹¤.
+            inputFieldë¥¼ ë¹ˆ ë¬¸ìì—´ë¡œ ì„¤ì •.
          */
          String value = words.get(key);
-         if (value != null) { // ´ëÀÀµÇ´Â ´Ü¾î°¡ ÀÖ´Â °æ¿ì
+         if (value != null) { // ëŒ€ì‘ë˜ëŠ” ë‹¨ì–´ê°€ ìˆëŠ” ê²½ìš°
             JOptionPane.showMessageDialog(this, value, key, 
                   JOptionPane.INFORMATION_MESSAGE);
-         } else { // ´ëÀÀµÇ´Â ´Ü¾î°¡ ¾ø´Â °æ¿ì
-            JOptionPane.showMessageDialog(this, "´Ü¾î¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.", key, 
+         } else { // ëŒ€ì‘ë˜ëŠ” ë‹¨ì–´ê°€ ì—†ëŠ” ê²½ìš°
+            JOptionPane.showMessageDialog(this, "ë‹¨ì–´ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.", key, 
                   JOptionPane.ERROR_MESSAGE);
          }
       } else if (e.getSource() == addBtn) {
          /*
-            ÀÔ·ÂµÈ ´Ü¾î¸¦ ÃßÃâ
+            ì…ë ¥ëœ ë‹¨ì–´ë¥¼ ì¶”ì¶œ
             String value = JOptionPane.showInputDialog(); 
-            ¸Ş¼­µå¸¦ È£ÃâÇØ¼­ Ãß°¡ÇÒ ¿µ¾î ´Ü¾î¸¦ ÀÔ·Â ¹Ş´Â´Ù.
-            dict.put(ÀÔ·ÂÇÊµå¿¡ ÀÔ·ÂµÈ ´Ü¾î, inputDialog¿¡ ÀÔ·ÂµÈ ´Ü¾î);
-            inputField¸¦ ºó ¹®ÀÚ¿­·Î ¼³Á¤.
+            ë©”ì„œë“œë¥¼ í˜¸ì¶œí•´ì„œ ì¶”ê°€í•  ì˜ì–´ ë‹¨ì–´ë¥¼ ì…ë ¥ ë°›ëŠ”ë‹¤.
+            dict.put(ì…ë ¥í•„ë“œì— ì…ë ¥ëœ ë‹¨ì–´, inputDialogì— ì…ë ¥ëœ ë‹¨ì–´);
+            inputFieldë¥¼ ë¹ˆ ë¬¸ìì—´ë¡œ ì„¤ì •.
          */
          String value = JOptionPane.showInputDialog(this,
-               key + "¿¡ ´ëÀÀµÇ´Â ¿µ¾î´Ü¾î¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
+               key + "ì— ëŒ€ì‘ë˜ëŠ” ì˜ì–´ë‹¨ì–´ë¥¼ ì…ë ¥í•˜ì„¸ìš”");
          if (value.trim().length() == 0) return;
          words.put(key, value);
          words.put(value, key);
-         // ÆÄÀÏ¿¡µµ key=value ÀÇ ½ÖÀ¸·Î ±â·ÏÇØ³õÀÚ.
-         // DB¿¡µµ <key, value>ÀÇ ½ÖÀ» ÇÏ³ªÀÇ ·¹ÄÚµå·Î ÀúÀåÇÏÀÚ.
+         // íŒŒì¼ì—ë„ key=value ì˜ ìŒìœ¼ë¡œ ê¸°ë¡í•´ë†“ì.
+         // DBì—ë„ <key, value>ì˜ ìŒì„ í•˜ë‚˜ì˜ ë ˆì½”ë“œë¡œ ì €ì¥í•˜ì.
          addToDB(key, value);
          addWordToFile(key, value);
-         JOptionPane.showMessageDialog(this, "["+value+"]"+"¿µ¾î´Ü¾î°¡ Ãß°¡µÇ¾ú½À´Ï´Ù", 
+         JOptionPane.showMessageDialog(this, "["+value+"]"+"ì˜ì–´ë‹¨ì–´ê°€ ì¶”ê°€ë˜ì—ˆìŠµë‹ˆë‹¤", 
                key, JOptionPane.INFORMATION_MESSAGE);
       }
       inputField.setText("");
@@ -186,31 +186,31 @@ public class SimpleDictionary extends JPanel implements ActionListener{
    }  
    private void addWordToDB(String key, String value) {
 	   /*
-	    * 1. db¿¬°á
-	    *    (1) jdbc µå¶óÀÌ¹ö ¸Ş¸ğ¸® ÀûÀç( ÇÑ ¹ø¸¸ ÇÏ¸é µÇ´Ï±î, ¿©±â¼­´Â ¾ÈÇØµµ µÇ°Ú´Ù..)
-	    *    (2) DriverManager.getConnection(url, id, ps) È£ÃâÇØ¼­
-	    *        Connection °´Ã¼¸¦ »ı¼ºÇÏ°í
-	    * 2. sql¹® ½ÇÇà
-	    *    (1) Connection °´Ã¼¿¡°Ô ½ÇÇàÇÒ sql¹®À» ½ÇÇàÁØºñ ¿äÃ»ÇÏ°í con.prepareStatement(sql);
-	    *        PreparedStatement °´Ã¼°¡ ¹İÈ¯µÈ´Ù.
-	    *    (2) PreparedStatement °´Ã¼¿¡°Ô ¼­¹ö¿¡°Ô ½ÇÇà¿äÃ» º¸³»¶ó
-	    *    	 PreparedStatement.executeUpdate() <- ½ÇÇàÇÒ sql¹®ÀÇ insert, delete, ¶Ç´Â update ÀÏ¶§
-	    *        PreparedStatement.executeQuery(); <- ½ÇÇàÇÒ sql¹®ÀÌ select ¹®ÀÏ ‹š
-	    * 3. db ¿¬°á ÇØÁ¦
+	    * 1. dbì—°ê²°
+	    *    (1) jdbc ë“œë¼ì´ë²„ ë©”ëª¨ë¦¬ ì ì¬( í•œ ë²ˆë§Œ í•˜ë©´ ë˜ë‹ˆê¹Œ, ì—¬ê¸°ì„œëŠ” ì•ˆí•´ë„ ë˜ê² ë‹¤..)
+	    *    (2) DriverManager.getConnection(url, id, ps) í˜¸ì¶œí•´ì„œ
+	    *        Connection ê°ì²´ë¥¼ ìƒì„±í•˜ê³ 
+	    * 2. sqlë¬¸ ì‹¤í–‰
+	    *    (1) Connection ê°ì²´ì—ê²Œ ì‹¤í–‰í•  sqlë¬¸ì„ ì‹¤í–‰ì¤€ë¹„ ìš”ì²­í•˜ê³  con.prepareStatement(sql);
+	    *        PreparedStatement ê°ì²´ê°€ ë°˜í™˜ëœë‹¤.
+	    *    (2) PreparedStatement ê°ì²´ì—ê²Œ ì„œë²„ì—ê²Œ ì‹¤í–‰ìš”ì²­ ë³´ë‚´ë¼
+	    *    	 PreparedStatement.executeUpdate() <- ì‹¤í–‰í•  sqlë¬¸ì˜ insert, delete, ë˜ëŠ” update ì¼ë•Œ
+	    *        PreparedStatement.executeQuery(); <- ì‹¤í–‰í•  sqlë¬¸ì´ select ë¬¸ì¼ Â‹Âš
+	    * 3. db ì—°ê²° í•´ì œ
 	    *    con.close();
 	    */
 	   
 	   try (Connection con = DriverManager.getConnection(DB_SERVER_URL, DB_USER, DB_USER_PW)){
 		   String sql = "insert into dict values(?, ?)";
 		   PreparedStatement pstmt = con.prepareStatement(sql);
-		   // ? ´Â place horder ÇÏ°í, ½ÇÇàÁØºñ ½ÃÅ² ÈÄ¿¡,
-		   // ½ÇÇà Á÷Àü¿¡ Àú ? ÀÚ¸®¿¡ °ªÀ» ¼³Á¤ÇÏ°í, ½ÇÇà ¿äÃ»À» º¸³½´Ù.
+		   // ? ëŠ” place horder í•˜ê³ , ì‹¤í–‰ì¤€ë¹„ ì‹œí‚¨ í›„ì—,
+		   // ì‹¤í–‰ ì§ì „ì— ì € ? ìë¦¬ì— ê°’ì„ ì„¤ì •í•˜ê³ , ì‹¤í–‰ ìš”ì²­ì„ ë³´ë‚¸ë‹¤.
 		   pstmt.setString(1, key);
 		   pstmt.setString(2, value);
 		   
-		   // ½ÇÇàÇÒ sql¹®ÀÌ insert, delete, ¶Ç´Â update ¹®ÀÏ ¶§, executeUpdate ¸Ş¼­µå È£Ãâ
-		   // ±× Á¤¼ö °ªÀº insert, delete, update ¹®ÀÇ ¼öÇàÀ¸·Î º¯°æµÈ ·¹ÄÚµåÀÇ ¼ö
-		   pstmt.executeUpdate(); //½ÇÇà ¿äÃ»
+		   // ì‹¤í–‰í•  sqlë¬¸ì´ insert, delete, ë˜ëŠ” update ë¬¸ì¼ ë•Œ, executeUpdate ë©”ì„œë“œ í˜¸ì¶œ
+		   // ê·¸ ì •ìˆ˜ ê°’ì€ insert, delete, update ë¬¸ì˜ ìˆ˜í–‰ìœ¼ë¡œ ë³€ê²½ëœ ë ˆì½”ë“œì˜ ìˆ˜
+		   pstmt.executeUpdate(); //ì‹¤í–‰ ìš”ì²­
 	   }catch(Exception e) {
 		   System.out.println(e.getMessage());
 		   e.printStackTrace();
@@ -219,25 +219,25 @@ public class SimpleDictionary extends JPanel implements ActionListener{
    
    private void addToDB(String key, String value) {
 	  /*
-	   * 1. µå¶óÀÌ¹ö Å¬·¡½º´Â µü ÇÑ ¹ø¸¸ ¸Ş¸ğ¸®¿¡ ÀûÀçÇÏ¸é µÊ.
-	   *    ±Ùµ¥, ÀÌ¹Ì °´Ã¼°¡ »ı¼ºµÉ ¶§, »ı¼ºÀÚ¿¡¼­ ÀûÀçµÇ¾úÀ½.
-	   *    ¿©±â¼­´Â ÀûÀçÇÒ ÇÊ¿ä°¡ ¾ø´Ù.
+	   * 1. ë“œë¼ì´ë²„ í´ë˜ìŠ¤ëŠ” ë”± í•œ ë²ˆë§Œ ë©”ëª¨ë¦¬ì— ì ì¬í•˜ë©´ ë¨.
+	   *    ê·¼ë°, ì´ë¯¸ ê°ì²´ê°€ ìƒì„±ë  ë•Œ, ìƒì„±ìì—ì„œ ì ì¬ë˜ì—ˆìŒ.
+	   *    ì—¬ê¸°ì„œëŠ” ì ì¬í•  í•„ìš”ê°€ ì—†ë‹¤.
 	   *    
-	   * 2. µ¥ÀÌÅÍº£ÀÌ½º¿¡ ¿¬°á
-	   * 3. sql¹® ½ÇÇà
-	   * 4. µ¥ÀÌÅÍº£ÀÌ½º ¿¬°á ÇØÁ¦
+	   * 2. ë°ì´í„°ë² ì´ìŠ¤ì— ì—°ê²°
+	   * 3. sqlë¬¸ ì‹¤í–‰
+	   * 4. ë°ì´í„°ë² ì´ìŠ¤ ì—°ê²° í•´ì œ
 	   */
 	   
 	   try (Connection con = DriverManager.getConnection(DB_SERVER_URL, DB_USER, DB_USER_PW)){
 		   String sql = "insert into dict values(?, ?)";
 		   PreparedStatement pstmt = con.prepareStatement(sql);
 		   
-		   // ? ÀÚ¸®¿¡ °ªÀ» Ã¤¿î ÈÄ¿¡, ¼­¹ö¿¡°Ô
-		   // ½ÇÇàÁØºñµÈ sql¹®À» ½ÇÇàÇÏ¶ó°í ¿äÃ»ÇØ¾ß ÇÑ´Ù.
+		   // ? ìë¦¬ì— ê°’ì„ ì±„ìš´ í›„ì—, ì„œë²„ì—ê²Œ
+		   // ì‹¤í–‰ì¤€ë¹„ëœ sqlë¬¸ì„ ì‹¤í–‰í•˜ë¼ê³  ìš”ì²­í•´ì•¼ í•œë‹¤.
 		   pstmt.setString(1, key);
 		   pstmt.setString(2, value);
 		   
-		   pstmt.executeUpdate(); //½ÇÇà ¿äÃ»
+		   pstmt.executeUpdate(); //ì‹¤í–‰ ìš”ì²­
 	   }catch(Exception e) {
 		   System.out.println(e.getMessage());
 		   e.printStackTrace();
@@ -258,7 +258,7 @@ public class SimpleDictionary extends JPanel implements ActionListener{
       JFrame frame = new JFrame();
       SimpleDictionary dictPanel = new SimpleDictionary();
       frame.add(dictPanel);
-      frame.setTitle("³ªÀÇ ÇÑ¿µ»çÀü");
+      frame.setTitle("ë‚˜ì˜ í•œì˜ì‚¬ì „");
       
       frame.setResizable(false);
       frame.pack();
